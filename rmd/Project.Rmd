@@ -1,0 +1,448 @@
+---
+output:
+  html_document: default
+  pdf_document: default
+  word_document: default
+---
+An Analysis of Wine by Travis Seal
+========================================================
+
+> **Intro:** What you will see below is an analysis of wine. This analysis is a free associative exploration of a great beverage.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, packages}
+# Load all of the packages that you end up using in your analysis in this code
+# chunk.
+
+# Notice that the parameter "echo" was set to FALSE for this code chunk. This
+# prevents the code from displaying in the knitted HTML output. You should set
+# echo=FALSE for all code chunks in your file, unless it makes sense for your
+# report to show the code that generated a particular plot.
+
+# The other parameters for "message" and "warning" should also be set to FALSE
+# for other code chunks once you have verified that each plot comes out as you
+# want it to. This will clean up the flow of your report.
+
+library(ggplot2)
+library(dplyr)
+library(reshape2)
+```
+
+```{r echo=FALSE, Load_the_Data}
+df = read.csv("E:\\Projects\\R\\data\\wineQualityReds.csv")
+```
+
+> **Our Data :**  The data-set that we are going to explore are data about the natural characteristics of wine. There are 13 total variables displayed below. The ones of particular interest are those relating to pH, and acidity levels: fixed.acidity   volatile.acidity  citric.acid, and pH. There are 1599 observations. 
+
+# Univariate Plots Section
+
+> **Summary of entire dataset:** 
+
+```{r echo=FALSE, Univariate_Plots}
+summary(df)
+
+```
+
+> **Summary of Volatile Acidity:** Lets trim down the data by focusing on a few variables. Below we will explore the alcoholic content of wine:
+
+
+```{r echo=FALSE}
+summary(df$volatile.acidity)
+
+```
+
+> **Summary of fixed acidity**
+
+```{r echo=FALSE}
+summary(df$fixed.acidity)
+
+```
+
+
+> **Summary of pH**
+
+```{r echo=FALSE}
+summary(df$pH)
+
+```
+
+
+# Univariate Analysis
+
+> **Variable Distribution**
+
+We are going to take a look at the distribution of the 'pH' variable. Basically I am wondering about the frequency of 'pH' in wine for the given data-set.
+
+
+> **Observations:**
+The concentration of acidity is between 3 and just below 3.5. I trimmed the tail to increase our focus on the majority of the data.
+
+
+
+
+```{r echo=FALSE, warning=FALSE,message=FALSE}
+
+
+qplot(df$pH,
+      geom="histogram",
+      binwidth = .01,  
+      main = "Histogram for PH Levels", 
+      xlab = "pH",  
+      fill=I("blue"), 
+      col=I("red"), 
+      alpha=I(.2),
+      xlim= c(2.8,3.75))  
+
+```
+
+>Here I trimmed the x axis so that we can focus on the majority of the data.
+
+> **Observations:**
+Its pretty clear that, even though there it is not a linear relationship, there is a general trend of increase observations as pH level increases. This climaxes at ~3.35, then starts to descend at a rate that is **really** close the the rate of ascension, thus we have a normal distribution.
+
+```{r echo=FALSE, warning=FALSE,message=FALSE}
+
+qplot(df$fixed.acidity,
+      geom="histogram",
+      binwidth = .01,
+      main = "Histogram for fixed acidity", 
+      xlab = "Fixed Acidity",  
+      fill=I("blue"), 
+      col=I("green"), 
+      alpha=I(.2))
+
+
+```
+
+
+
+```{r echo=FALSE, warning=FALSE,message=FALSE}
+
+
+qplot(df$volatile.acidity,
+      geom="histogram",
+      binwidth = .01,
+      main = "Histogram for volatile acidity", 
+      xlab = "Volatile Acidity",  
+      fill=I("purple"), 
+      col=I("pink"), 
+      alpha=I(.2)) 
+  
+
+
+```
+
+
+
+```{r echo=FALSE, warning=FALSE,message=FALSE}
+
+ggplot(data=df) +
+  geom_histogram( aes(pH, ..density..), binwidth = .03,color ='blue' ) +
+  geom_density( aes(pH, ..density..) ) +
+  xlim(c(3,3.6))+
+  facet_wrap(~quality  , ncol =6,scales = "free")+
+    labs(title = "Groups of quality ratings",
+           x = "pH value for each group")
+  
+
+
+```
+
+
+
+> **observation** This graph shows that 5 of the 6 graphs are normally distributed. Graph 8, or those with the highest quality rating lean to the left, indicating a tendency to like wine with a greater level of acidity. This is because 7 is considered base, and thus a lower number indicates a higher level of acidity.
+
+
+```{r echo=FALSE, warning=FALSE,message=FALSE}
+
+ggplot(data=df) +
+  geom_histogram( aes(pH, ..density..), binwidth = .01,color ='red' ) +
+  geom_density( aes(pH, ..density..) ) +
+  xlim(c(3.15,3.6))+
+  facet_wrap(~trunc(alcohol) , ncol = 4,scales = "free")+
+  labs(title = "Groups of Alcohol percentage",
+           x = "pH value for each group") 
+
+
+```
+
+> **Observations**
+This graph shows the pH for groupings of concentration of alcohol content. It is interesting to note that in group with 8% content have most concentrated observations at a pH value of ~3, while the group with 9% have a normal (symmetric) distribution. Because alcohol can act as a base or an acid, it will impossible to determine using the existing data if the alcohol content is the reason for the shifts in distribution. Because graphs 9-11 are similar in shape, and 8,14 are *very* different, I think the changes may be due to flaws the sample data, to small of a sample size to represent the population, or outlier data. 
+
+
+> **Does our alcohol data come from a normal distribution?**
+
+```{r echo=FALSE, warning=FALSE,message=FALSE}
+qqnorm(trunc(df$alcohol))
+
+```
+> The above graph is the data the is rounded down to the nerest whole (truncated).
+
+```{r echo=FALSE, warning=FALSE,message=FALSE}
+qqnorm((df$alcohol))
+
+```
+
+
+
+> **This graph does not round the values down to the nearist whole.**
+
+>I would say yes. The data in the graph shows a strong probability that this data is normally distributed.
+
+
+> **Structure of my data**
+In our adventure so far, we have only seen one variable at a time. Thus the structure of the data is a 1 dimensional histogram that shows the frequency of occurrence and spread of the variable. Our chosen variables have a regular distribution *(normally distributed)*
+
+
+> **The main features** of interest in our data set are the type and category of acids as they relate to wine,quality, and its pH level.
+
+
+>**Summary**
+
+> **Imperfections**
+Our data is not perfect, and we can shape our data to make it appear nice to work with by trimming outlines, or changing the bin size. When I grouped the data by alcohol percentage, only half of my graphs turned out 'normal' looking.
+
+> **Ideal Data**
+Our data is truly ideal to work with due to the data being cleaned, and normally distributed.
+
+
+># Bivariate Plots Section
+
+> **Exploring Relationships**:
+Acidity is just acidity, right?
+Turns out there's more to it. Below is a scatter plot showing the basic relationship between 'fixed acidity' and its pH value.
+
+```{r echo=FALSE, Bivariate_Plots, warning=FALSE,message=FALSE}
+
+ggplot(aes(x = pH, y = fixed.acidity),data = df) +
+  geom_jitter(alpha = 1/5) +
+  xlim(3,3.75)+
+  labs(title = "Two Variable pH / Fixed Acidity",
+           x = "pH values") 
+
+
+```
+
+
+
+> **Observations**
+This scatter plot shows us an emerging trend among *all* the data points. It will not show you the *overall relationship* between the two variables.
+We can start to see a clustering of data ~3.4 pH.
+
+
+```{r echo=FALSE, warning=FALSE,message=FALSE}
+
+ggplot(df, aes(pH, fixed.acidity) ) +
+  geom_smooth(method=lm)+ 
+  geom_jitter(alpha = 1/5) +
+  xlim(3,3.75)+
+  labs(title = "Fixed Acidity / pH with regression",
+           x = "pH value range") 
+  
+
+```
+
+
+>There seems to be a pretty clear trend as the fixed acidity decreases, so does the acidity level. Remember, acids get more *acidy* as the fall below 7.
+
+
+># Is there a relationship between pH, and alcohol percentage?
+
+```{r echo=FALSE, warning=FALSE,message=FALSE}
+
+ggplot(aes(alcohol,pH), data = df) +
+  geom_point(alpha=.1) +
+  geom_smooth(method = 'lm', color = 'red')+
+  labs(title = "pH to Alcohol percentage",
+           x = "Percent of Alcohol") 
+
+```
+
+
+>**Answer:**
+Using Pearson's product I get a correlation value of .205. This to me resembles a very weak correlation. This makes since as we know that alcohol can act as either a base or an acid. I can say with ~90% certainty that there is no correlation between the content of alcohol and the pH value of the wine.
+
+># Is there a correlation between quality and how sweet the wine is?
+
+```{r echo=FALSE, warning=FALSE,message=FALSE}
+
+ggplot(aes(residual.sugar,quality), data = df) +
+  geom_point(alpha=.1) +
+  geom_smooth(method = 'lm', color = 'red')+
+  labs(title = "Sweet wine is not quality wine",
+           x = "sugar content") 
+
+```
+
+> **Answer**
+No. Which was a little surprising. The calculated correlation is 0.01. In this case 'quality' is somewhat a subjective variable. Sweet wine does not hint at it being good quality.
+
+
+
+
+># Bivariate Analysis
+
+In the given data set, there is no one variable that determines the quality. I did not find a statistically significant correlation between quality, and any other variable. This leads me to conclude that quality must be the product of a combination of variables added together.
+
+
+>I compared the pH with the acidity levels in wine. This was a natural comparison as pH is the scale by which acidity is measured. This lead me to start asking other questions, like 'what makes good quality wine'? I stepped through each of the variables and found a correlation of .25 between the amount of sulfates and quality. This value was not strong enough for me to conclude that it is significant, however, it is important to not that it was the strongest out of all of them when measured one at a time.
+
+
+
+># Multivariate Plots Section
+
+```{r echo=FALSE,  warning=FALSE,message=FALSE}
+df.melted <- melt(df,c('quality','pH'))
+
+rows <- head(df.melted,1000)
+
+
+ggplot(aes(y = pH, x = quality, fill = value),
+       data = rows) +
+  geom_tile()+
+  scale_fill_gradientn(colours = colorRampPalette(c('blue','red'))(100))+
+  labs(title = "Quality / pH Heatmap",
+           x = "Quality value for each group") 
+
+
+```
+
+> I melted the data down and created a heatmap of the first 1000 data points. As determined before, there is no clear relationship between quality and pH.
+
+
+```{r echo=FALSE,  warning=FALSE,message=FALSE}
+
+
+df.melted <- melt(df,c('fixed.acidity', 'volatile.acidity', 'citric.acid', 'residual.sugar', 'chlorides' ,'free.sulfur.dioxide', 'total.sulfur.dioxide', 'density', 'pH', 'sulphates', 'alcohol', 'quality'))
+
+ggplot(aes(y = pH, x = alcohol,fill = value ),
+       data = df.melted) +
+  geom_tile(aes(fill = value, width = .3))+
+  scale_fill_gradientn(colours = colorRampPalette(c('blue','red'))(100))+
+  geom_smooth(method = 'lm', color = 'green')+
+  labs(title = "Alcohol / pH Heatmap",
+           x = "Alcohol Percentage") 
+
+
+
+
+```
+
+
+>Using the same data as above we can look at the degrees of concentration of alcohol, and its relative pH and quality levels. There is a slight (.205)
+correlation between the alcohol percentage and its pH value.
+
+
+
+
+```{r echo=FALSE,  warning=FALSE,message=FALSE}
+
+
+df.melted <- melt(df,c('fixed.acidity', 'volatile.acidity', 'citric.acid', 'residual.sugar', 'chlorides' ,'free.sulfur.dioxide', 'total.sulfur.dioxide', 'density', 'pH', 'sulphates', 'alcohol', 'quality'))
+
+ggplot(aes(y = pH, x = alcohol ),
+       data = df.melted) +
+  geom_point(alpha = .1,aes( width = .3))+
+  geom_smooth(method = 'lm', color = 'blue')+
+  labs(title = "pH / Alcohol Plot Regression ",
+           x = "Alcohol Percentage") 
+
+
+
+
+```
+
+>This is the same data using plots instead of a heat-map. This graph shows a higher concentration of alcohol exists in the range less than 10% indicated by two dark vertical lines at ~9.5%. There is also a positive coloration between alcohol at pH ~.25. Although this graph shows a correlation, I have to iterate that alcohol can act as either an acid or a base, so the information derived from this graph is only good for the scope of this exercise.
+
+
+```{r echo=FALSE,  warning=FALSE,message=FALSE}
+
+
+df.melted <- melt(df,c('fixed.acidity', 'volatile.acidity', 'citric.acid', 'residual.sugar', 'chlorides' ,'free.sulfur.dioxide', 'total.sulfur.dioxide', 'density', 'pH', 'sulphates', 'alcohol', 'quality'))
+
+ggplot(aes(y = pH, x = quality,fill = free.sulfur.dioxide ),
+       data = df.melted) +
+  geom_tile()+
+  scale_fill_gradientn(colours = colorRampPalette(c('black','white'))(100))+
+  labs(title = "pH / Quality Heatmap",
+           x = "Quality Range") 
+
+
+```
+
+>This graph shows the quality, pH, and degree of free sulfur dioxide. It is important to point out that I see a hardline between 4-6. You can almost see a rectangle starting to appear. This would be the same 75% of data that makes up the normal distribution. Looks like the more free sulfur dioxide you have, the higher quality wine you have.
+
+># Multivariate Analysis
+ **Observed relationships** There were a few key observations: 
+ **1.** The more free surfer dioxide you have, the higher the quality rating 
+ **2.** There is no significant relationship between the pH and alcohol content 
+ **3.** All of the variables help determine good quality wine, its not just one magic variable 
+
+
+>*Interesting observations* 
+**1.** Most of the wine that had the highest quality had a alcohol content between ~5% and ~7%. This is interesting because you see a drastic decrease of quality past that range. Therefore, I can infer that if your drink has to much alcohol, it can reduce the quality of the drink all together.This may seem obvious, but worth noting that this is a relatively small percentage of alcohol. I guess wine should stay within a specific range as shown on the graph.
+
+------
+
+> ##Plot One##
+
+```{r echo=FALSE, Plot_One, warning=FALSE,message=FALSE}
+
+ggplot(data=df) +
+  geom_histogram( aes(pH, ..density..), binwidth = .01,color ='red' ) +
+  geom_density( aes(pH, ..density..) ) +
+  xlim(c(3.15,3.6))+
+  facet_wrap(~trunc(alcohol) , ncol = 4,scales = "free")+
+  labs(title = "Groups of Alcohol percentage",
+           x = "pH value for each group") 
+
+```
+
+>### Description One
+This graph provides really good insight into the wine grouped by alcohol percentage. The percentage is truncated as to create a category. It shows the distribution of of pH for each group. I did find graphs 8, 13 and 14 to be 'weird'. I believe that these are examples of a case of incomplete data (sample size could be to small), or values that are outliers; if I had more data it is possible that these graphs would begin to look normally distributed. 
+
+### Plot Two
+```{r echo=FALSE, Plot_Two, warning=FALSE,message=FALSE}
+
+
+df.melted <- melt(df,c('fixed.acidity', 'volatile.acidity', 'citric.acid', 'residual.sugar', 'chlorides' ,'free.sulfur.dioxide', 'total.sulfur.dioxide', 'density', 'pH', 'sulphates', 'alcohol', 'quality'))
+
+ggplot(aes(y = pH, x = quality,fill = free.sulfur.dioxide ),
+       data = df.melted) +
+  geom_tile()+
+  scale_fill_gradientn(colours = colorRampPalette(c('black','white'))(100))+
+  labs(title = "pH / Quality Heatmap",
+           x = "Quality Range") 
+
+```
+
+>### Description Two
+This map captures three variables: pH, free surfer dioxide, and the quality range. This graph captures how free surfer and pH contribute to the quality. It is obvious that the bulk of the data resides between 4 and 7. This is the sweet spot to manufacture wine at.
+
+### Plot Three
+```{r echo=FALSE, Plot_Three, warning=FALSE,message=FALSE}
+
+ggplot(aes(residual.sugar,quality), data = df) +
+  geom_point(alpha=.1) +
+  geom_smooth(method = 'lm', color = 'red')+
+  labs(title = "Sweet wine is not quality wine",
+           x = "sugar content") 
+
+
+```
+
+>### Description Three
+I like this graph because it absolutely deified by conception of good quality wine. I love sweet wine, and I thought that it would play a factor in the quality. This graph says something different. There is no correlation between how sweet wine is, and its quality. Obviously I don't know much about wine!
+There is no meaningful increase in quality with sugar, however, there is something hidden here. According to the data there is a range between ~5 and ~7 that sugar plays a part. But it is not deterministic.
+
+------
+
+>###Reflection
+> **Challanges** On a technical level creating the heat-maps proved the most challenging. The solution was to *read the docs*. Another challenge was on a conceptual level, translating narrow data to wide data, and figuring out how to query/graph the data. The solution was to study examples, and read some informational material on the subject. Certainly if I had to scrub, or scrape the data from an online resource, it would be much harder due to the overhead of cleaning, and storing the data.
+
+>**Supprising Insights** I was surprised to see that sugar played a very low role in the overall quality of wine. It was important, but not linear. I found that there was a combination off all variables to produce good quality wine, which is why any store has shelves of the product with varying prices.
+I was surprised at the relationship between pH and alcohol. They 'play well' in wine. Alcohol does not increase the effect of pH, and pH does not increase the alcohol effect. They are two independent variables.
+
+> **Future work with the data set** The data-set 'smells' incomplete. I first noticed this when I grouped the wine by alcohol content. Most of the graphs were normally distributed, while others looked very different. My impression is that if there was more data these graphs could be normalized.
+
+
+
